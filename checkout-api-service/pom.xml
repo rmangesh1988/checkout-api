@@ -14,6 +14,14 @@
 
     <name>Checkout API service</name>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.checkout.data</groupId>
+            <artifactId>checkout-api-data</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
