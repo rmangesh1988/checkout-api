@@ -29,16 +29,16 @@ public class CheckoutService {
      */
     public CheckoutResponse performCheckout(List<CheckoutItem> checkoutItems) {
 
-        var productIds = checkoutItems.stream().map(ci -> ci.productId()).collect(Collectors.toSet());
+        var productIds = checkoutItems.stream().map(CheckoutItem::productId).collect(Collectors.toSet());
         var productsInCatalogue = productCatalogueService.findByProductIdIn(productIds);
         if(productIds.size() != productsInCatalogue.size()) {
-            var productIdsInCatalogue = productsInCatalogue.stream().map(p -> p.getProductId()).collect(Collectors.toSet());
+            var productIdsInCatalogue = productsInCatalogue.stream().map(Product::getProductId).collect(Collectors.toSet());
             var inValidProductIds = new HashSet<>(CollectionUtils.removeAll(productIds, productIdsInCatalogue));
             throw new EntityNotFoundException(String.format(PRODUCT_NOT_FOUND, String.join(", ", inValidProductIds)));
         }
 
         //Aggregate selected product ids
-        var selectedProductIdsCount = checkoutItems.stream().collect(Collectors.groupingBy(ci -> ci.productId(), Collectors.collectingAndThen(Collectors.counting(), Long::intValue)));
+        var selectedProductIdsCount = checkoutItems.stream().collect(Collectors.groupingBy(CheckoutItem::productId, Collectors.collectingAndThen(Collectors.counting(), Long::intValue)));
         //Apply discount logic
         var totalPrice = selectedProductIdsCount.entrySet().stream().mapToDouble(e -> calculateIndividualProductPrice(e, productsInCatalogue)).sum();
         return new CheckoutResponse(totalPrice);
