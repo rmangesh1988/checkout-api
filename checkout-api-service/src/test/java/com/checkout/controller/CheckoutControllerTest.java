@@ -1,15 +1,5 @@
 package com.checkout.controller;
 
-import com.checkout.data.dto.CheckoutResponse;
-import com.checkout.exception.EntityNotFoundException;
-import com.checkout.service.CheckoutService;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
-
 import static com.checkout.data.util.ExceptionMessage.NO_PRODUCTS_SELECTED;
 import static com.checkout.data.util.ExceptionMessage.PRODUCT_ID_BLANK;
 import static com.checkout.data.util.ExceptionMessage.PRODUCT_NOT_FOUND;
@@ -31,22 +21,31 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.checkout.data.dto.CheckoutResponse;
+import com.checkout.exception.EntityNotFoundException;
+import com.checkout.service.CheckoutService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.web.servlet.MockMvc;
+
 @WebMvcTest(CheckoutController.class)
 @AutoConfigureMockMvc
 class CheckoutControllerTest {
 
-    @Autowired
-    MockMvc mockMvc;
+  @Autowired MockMvc mockMvc;
 
-    @MockBean
-    CheckoutService checkoutService;
+  @MockBean CheckoutService checkoutService;
 
-    @Test
-    void shouldReturnTotalCostWhenGivenAListOfProducts() throws Exception {
+  @Test
+  void shouldReturnTotalCostWhenGivenAListOfProducts() throws Exception {
 
-        when(checkoutService.performCheckout(anyList())).thenReturn(new CheckoutResponse(360.0));
+    when(checkoutService.performCheckout(anyList())).thenReturn(new CheckoutResponse(360.0));
 
-        var productIds = """
+    var productIds =
+        """
                 [
                 "001",
                 "002",
@@ -56,23 +55,27 @@ class CheckoutControllerTest {
                 ]
                 """;
 
-        mockMvc.perform(post(V1_CHECKOUT_URI).contentType(APPLICATION_JSON).content(productIds))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(APPLICATION_JSON))
-                .andExpect(jsonPath("$.price", is(360.0)))
-                .andDo(print());
+    mockMvc
+        .perform(post(V1_CHECKOUT_URI).contentType(APPLICATION_JSON).content(productIds))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(jsonPath("$.price", is(360.0)))
+        .andDo(print());
 
-        verify(checkoutService, times(1)).performCheckout(anyList());
-        verifyNoMoreInteractions(checkoutService);
-    }
+    verify(checkoutService, times(1)).performCheckout(anyList());
+    verifyNoMoreInteractions(checkoutService);
+  }
 
-    @Test
-    void shouldThrowExceptionAsNotFoundWhenInvalidProductIdsAreProvided() throws Exception {
+  @Test
+  void shouldThrowExceptionAsNotFoundWhenInvalidProductIdsAreProvided() throws Exception {
 
-        var exceptionMessage = String.format(PRODUCT_NOT_FOUND, "0011");
-        doThrow(new EntityNotFoundException(exceptionMessage)).when(checkoutService).performCheckout(anyList());
+    var exceptionMessage = String.format(PRODUCT_NOT_FOUND, "0011");
+    doThrow(new EntityNotFoundException(exceptionMessage))
+        .when(checkoutService)
+        .performCheckout(anyList());
 
-        var productIds = """
+    var productIds =
+        """
                 [
                 "0011",
                 "002",
@@ -82,53 +85,57 @@ class CheckoutControllerTest {
                 ]
                 """;
 
-        mockMvc.perform(post(V1_CHECKOUT_URI).contentType(APPLICATION_JSON).content(productIds))
-                .andExpect(status().isNotFound())
-                .andExpect(content().contentType(APPLICATION_JSON))
-                .andExpect(jsonPath("$.message", is(exceptionMessage)))
-                .andDo(print());
+    mockMvc
+        .perform(post(V1_CHECKOUT_URI).contentType(APPLICATION_JSON).content(productIds))
+        .andExpect(status().isNotFound())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(jsonPath("$.message", is(exceptionMessage)))
+        .andDo(print());
 
-        verify(checkoutService, times(1)).performCheckout(anyList());
-        verifyNoMoreInteractions(checkoutService);
-    }
+    verify(checkoutService, times(1)).performCheckout(anyList());
+    verifyNoMoreInteractions(checkoutService);
+  }
 
-    @Test
-    void shouldThrowExceptionAsBadRequestWhenBlankProductIdsAreProvided() throws Exception {
+  @Test
+  void shouldThrowExceptionAsBadRequestWhenBlankProductIdsAreProvided() throws Exception {
 
-        var productIds = """
+    var productIds =
+        """
                 [
                 "",
                 "002"
                 ]
                 """;
 
-        mockMvc.perform(post(V1_CHECKOUT_URI).contentType(APPLICATION_JSON).content(productIds))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(APPLICATION_JSON))
-                .andExpect(jsonPath("$.message", is(VALIDATION_FAILURE)))
-                .andExpect(jsonPath("$.errors[*]", hasSize(1)))
-                .andExpect(jsonPath("$.errors[0]", is(PRODUCT_ID_BLANK)))
-                .andDo(print());
+    mockMvc
+        .perform(post(V1_CHECKOUT_URI).contentType(APPLICATION_JSON).content(productIds))
+        .andExpect(status().isBadRequest())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(jsonPath("$.message", is(VALIDATION_FAILURE)))
+        .andExpect(jsonPath("$.errors[*]", hasSize(1)))
+        .andExpect(jsonPath("$.errors[0]", is(PRODUCT_ID_BLANK)))
+        .andDo(print());
 
-        verifyNoInteractions(checkoutService);
-    }
+    verifyNoInteractions(checkoutService);
+  }
 
-    @Test
-    void shouldThrowExceptionAsBadRequestWhenEmptyProductListIsProvided() throws Exception {
+  @Test
+  void shouldThrowExceptionAsBadRequestWhenEmptyProductListIsProvided() throws Exception {
 
-        var productIds = """
+    var productIds = """
                 [
                 ]
                 """;
 
-        mockMvc.perform(post(V1_CHECKOUT_URI).contentType(APPLICATION_JSON).content(productIds))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(APPLICATION_JSON))
-                .andExpect(jsonPath("$.message", is(VALIDATION_FAILURE)))
-                .andExpect(jsonPath("$.errors[*]", hasSize(1)))
-                .andExpect(jsonPath("$.errors[0]", is(NO_PRODUCTS_SELECTED)))
-                .andDo(print());
+    mockMvc
+        .perform(post(V1_CHECKOUT_URI).contentType(APPLICATION_JSON).content(productIds))
+        .andExpect(status().isBadRequest())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(jsonPath("$.message", is(VALIDATION_FAILURE)))
+        .andExpect(jsonPath("$.errors[*]", hasSize(1)))
+        .andExpect(jsonPath("$.errors[0]", is(NO_PRODUCTS_SELECTED)))
+        .andDo(print());
 
-        verifyNoInteractions(checkoutService);
-    }
+    verifyNoInteractions(checkoutService);
+  }
 }

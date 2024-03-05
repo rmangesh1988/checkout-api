@@ -9,18 +9,19 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenAPIConfig {
 
-    @Bean
-    public OpenAPI myOpenAPI() {
-        var contact = new Contact();
-        contact.setEmail("rmangesh1@gmail.com");
-        contact.setName("Mangesh");
+  @Bean
+  public OpenAPI myOpenAPI() {
+    var contact = new Contact();
+    contact.setEmail("rmangesh1@gmail.com");
+    contact.setName("Mangesh");
 
-        var info = new Info()
-                .title("Checkout API")
-                .version("1.0")
-                .contact(contact)
-                .description("This API exposes endpoints for checkout.");
+    var info =
+        new Info()
+            .title("Checkout API")
+            .version("1.0")
+            .contact(contact)
+            .description("This API exposes endpoints for checkout.");
 
-        return new OpenAPI().info(info);
-    }
+    return new OpenAPI().info(info);
+  }
 }

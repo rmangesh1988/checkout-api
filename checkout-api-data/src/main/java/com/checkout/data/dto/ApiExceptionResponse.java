@@ -1,22 +1,20 @@
 package com.checkout.data.dto;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.Builder;
 import lombok.Value;
 import org.springframework.http.HttpStatus;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Value
 @Builder
 public class ApiExceptionResponse {
 
-    @Builder.Default
-    LocalDateTime timestamp = LocalDateTime.now();
+  @Builder.Default LocalDateTime timestamp = LocalDateTime.now();
 
-    HttpStatus httpStatus;
+  HttpStatus httpStatus;
 
-    String message;
+  String message;
 
-    List<String> errors;
+  List<String> errors;
 }

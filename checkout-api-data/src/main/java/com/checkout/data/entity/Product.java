@@ -18,19 +18,17 @@ import lombok.NoArgsConstructor;
 @Data
 public class Product {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Long id;
 
-    private String productId;
+  private String productId;
 
-    private String productName;
+  private String productName;
 
-    private double unitPrice;
+  private double unitPrice;
 
-    private int discountQuantity;
+  private int discountQuantity;
 
-    private double discountPrice;
-
-
+  private double discountPrice;
 }
